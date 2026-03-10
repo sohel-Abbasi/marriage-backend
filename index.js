@@ -12,10 +12,12 @@ dotenv.config();
 const app = express();
 
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI =
-  process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 app.use(
-  cors()
+  cors({
+    origin: true,
+    credentials: true,
+  }),
 );
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
@@ -40,4 +42,3 @@ mongoose
     console.error("Failed to connect to MongoDB", err);
     process.exit(1);
   });
-
