@@ -29,16 +29,25 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/biodata", biodataRoutes);
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => {
-    app.listen(PORT, () => {
+if (MONGODB_URI) {
+  mongoose
+    .connect(MONGODB_URI)
+    .then(() => {
       // eslint-disable-next-line no-console
-      console.log(`ShaadiBio API listening on port ${PORT}`);
+      console.log("Connected to MongoDB");
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error("Failed to connect to MongoDB", err);
     });
-  })
-  .catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error("Failed to connect to MongoDB", err);
-    process.exit(1);
-  });
+} else {
+  // eslint-disable-next-line no-console
+  console.error("MONGODB_URI environment variable is missing");
+}
+
+app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log(`ShaadiBio API listening on port ${PORT}`);
+});
+
+export default app;
