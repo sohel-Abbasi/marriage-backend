@@ -29,21 +29,27 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/biodata", biodataRoutes);
 
-if (MONGODB_URI) {
-  mongoose
-    .connect(MONGODB_URI)
-    .then(() => {
-      // eslint-disable-next-line no-console
-      console.log("Connected to MongoDB");
-    })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error("Failed to connect to MongoDB", err);
-    });
-} else {
-  // eslint-disable-next-line no-console
-  console.error("MONGODB_URI environment variable is missing");
-}
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+  if (!MONGODB_URI) {
+    console.error("MONGODB_URI environment variable is missing");
+    return;
+  }
+  try {
+    const db = await mongoose.connect(MONGODB_URI);
+    isConnected = db.connections[0].readyState === 1;
+    console.log("Connected to MongoDB via serverless wrapper");
+  } catch (err) {
+    console.error("Failed to connect to MongoDB", err);
+  }
+};
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
